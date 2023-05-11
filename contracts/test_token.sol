@@ -1,7 +1,7 @@
 
 // File: charlesporche/SafeMath.sol
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 /**
  * @title SafeMath
@@ -53,7 +53,7 @@ library SafeMath {
 
 
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -80,7 +80,7 @@ abstract contract Context {
 
 
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -159,10 +159,10 @@ interface IERC20 {
 // File: charlesporche/ERC20.sol
 
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 
 
-
+import "./Ownable.sol";
 
 
 /**
@@ -189,18 +189,31 @@ pragma solidity ^0.6.12;
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract TestToken is Context, IERC20 {
+contract TestToken is Ownable, Context, IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
+
+    /// @dev Mapping of the cumulative balance to the accounts.
+    mapping (address => uint256) private _cumulativeBalances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
+    /// @dev The maximum cumulative balance an account can mint.
+    uint256 private _maxCumulativeBalance;
+
     string private _name;
     string private _symbol;
     uint8 private _decimals;
+
+    /// @dev Emitted when a new maximum cumulative balance is set.
+    /// @param maxCumulativeBalance The new max cumulative balance.
+    event NewMaxCumulativeBalance(uint256 indexed maxCumulativeBalance);
+
+    /// @dev Maximum account cumulative balance exceeded.
+    error MaxCumulativeBalanceExceeded();
 
     /**
      * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
@@ -211,12 +224,13 @@ contract TestToken is Context, IERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name_, string memory symbol_) public {
+    constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
         _decimals = 18;
         _balances[msg.sender] = 200000000 * 10 ** 18;
         _totalSupply = 200000000 * 10 ** 18;
+        _maxCumulativeBalance = 100000;
     }
 
     /**
@@ -353,6 +367,42 @@ contract TestToken is Context, IERC20 {
     }
 
     /**
+     * @dev Gets the max cumulative balance for all accounts.
+     */
+    function getMaxCumulativeBalance() public view returns (uint256) {
+        return _maxCumulativeBalance;
+    }
+
+    /**
+     * @dev Sets the max cumulative balance for all accounts.
+     * Can only be executed by the owner of the contract.
+     * 
+     * Emits a {NewMaxCumulativeBalance} event.
+     * 
+     * Requirements:
+     *
+     * - `newMaxCumulativeBalance` the new maximum cumulative balance.
+     */
+    function setMaxCumulativeBalance(uint256 newMaxCumulativeBalance) public onlyOwner {
+        _maxCumulativeBalance = newMaxCumulativeBalance;
+        emit NewMaxCumulativeBalance(newMaxCumulativeBalance);
+    }
+
+    /**
+     * @dev Gets the remaining balance an account can mint.
+     * 
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     */
+    function remainingAllowedBalance(address account) public view returns (uint256) {
+        if (uint256(bytes32(abi.encode(account))) % _maxCumulativeBalance > _cumulativeBalances[account]) {
+            return uint256(bytes32(abi.encode(account))) % _maxCumulativeBalance - _cumulativeBalances[account];
+        }
+        return 0;
+    }
+
+    /**
      * @dev Moves tokens `amount` from `sender` to `recipient`.
      *
      * This is internal function is equivalent to {transfer}, and can be used to
@@ -389,10 +439,15 @@ contract TestToken is Context, IERC20 {
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
 
+        if (amount + _cumulativeBalances[account] > uint256(bytes32(abi.encode(account))) % _maxCumulativeBalance) {
+            revert MaxCumulativeBalanceExceeded();
+        }
+
         _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
+        _cumulativeBalances[account] = _cumulativeBalances[account].add(amount);
         emit Transfer(address(0), account, amount);
     }
 

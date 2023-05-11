@@ -5,3 +5,5 @@ export * as factorySol from "./Factory.sol";
 export * as routerSol from "./Router.sol";
 export * as testTokenSol from "./test_token.sol";
 export * as wethSol from "./weth.sol";
+export { IOwnable__factory } from "./IOwnable__factory";
+export { Ownable__factory } from "./Ownable__factory";
