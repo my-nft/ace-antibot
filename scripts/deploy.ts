@@ -23,31 +23,31 @@ async function main(hre: HardhatRuntimeEnvironment) {
 
 
   ////////////// deploy weth /////////////////
-  const wethArtifact = await ethers.getContractFactory("WETH9");
+  // const wethArtifact = await ethers.getContractFactory("WETH9");
 
-  const wethInstance = await wethArtifact.deploy();
+  // const wethInstance = await wethArtifact.deploy();
 
-  await wethInstance.deployed();
+  // await wethInstance.deployed();
 
-  console.log("deployer address: ", deployer.address);
+  // console.log("deployer address: ", deployer.address);
 
-  console.log("wethInstance: ", wethInstance.address);
-
-  ////////////// deploy factory /////////////////
-
-  const factoryInstance = await factoryArtifact.deploy(deployer.address);
-
-  await factoryInstance.deployed();
-
-  console.log("factoryInstance: ", factoryInstance.address);
+  // console.log("wethInstance: ", wethInstance.address);
 
   ////////////// deploy factory /////////////////
 
-  const routerInstance = await routerArtifact.deploy(factoryInstance.address, wethInstance.address);
+  // const factoryInstance = await factoryArtifact.deploy(deployer.address);
 
-  await routerInstance.deployed();
+  // await factoryInstance.deployed();
+
+  // console.log("factoryInstance: ", factoryInstance.address);
+
+  ////////////// deploy factory /////////////////
+
+  // const routerInstance = await routerArtifact.deploy(factoryInstance.address, wethInstance.address);
+
+  // await routerInstance.deployed();
   
-  console.log("routerInstance: ", routerInstance.address);
+  // console.log("routerInstance: ", routerInstance.address);
 
   ////////////// deploy token /////////////////
 
@@ -57,11 +57,24 @@ async function main(hre: HardhatRuntimeEnvironment) {
   
   console.log("tokenInstance: ", tokenInstance.address);
 
-  ////////////// get balance //////////////
-  
-  const adminBalance = await tokenInstance.balanceOf(deployer.address);
+  /////////////// addresses //////////
 
-  console.log("adminBalance: ", adminBalance);
+  const routerAddress = "0x980aCF80570e0895A3e03D8786A4cCB7C94408b2";
+  const factoryAddress = "0xE5D0eB12257DFE3b17b34f758efD7c6631f97017";
+  const wethAddress = "0x1dDaBBFF083301E937b24fA4C31ebCb9c695F39c";
+
+  ////////////// load contracts ///////////
+
+  
+  const hardhat = require("hardhat");
+  const routerArtifact2 = await hardhat.artifacts.readArtifact("Router02");
+
+  const routerInstance = new ethers.Contract(
+    factoryAddress,
+    routerArtifact2["abi"],
+    deployer
+  );
+
 
   ///////////// add liquidity //////////////////
 
@@ -74,11 +87,13 @@ async function main(hre: HardhatRuntimeEnvironment) {
   const ethMinLiquidity = "1000";
 
   const tokenApprove = await tokenInstance.approve(
-    routerInstance.address, 
+    routerAddress, 
     tokenLiquidity
   )
 
   await tokenApprove.wait();
+
+  console.log("tokenApprove: ", tokenApprove);
 
   const addLiquidityETH = await routerInstance.addLiquidityETH(
     tokenInstance.address,
@@ -88,7 +103,8 @@ async function main(hre: HardhatRuntimeEnvironment) {
     deployer.address,
     "6000000000000000",
     {
-      value: ethLiquidity
+      value: ethLiquidity,
+      gasLimit: 5000000,
     } 
   );
   
@@ -99,7 +115,7 @@ async function main(hre: HardhatRuntimeEnvironment) {
   const swapEthAmount = "100000000000000";
 
   const routes = [
-    wethInstance.address,
+    wethAddress,
     tokenInstance.address
   ];
 
@@ -118,13 +134,13 @@ async function main(hre: HardhatRuntimeEnvironment) {
 
   const routes2 = [
     tokenInstance.address,
-    wethInstance.address
+    wethAddress
   ];
 
   const swapTokensAmount = "10000000000000000000";
 
   const tokenApprove2 = await tokenInstance.approve(
-    routerInstance.address, 
+    routerAddress, 
     swapTokensAmount
   )
 
@@ -141,8 +157,6 @@ async function main(hre: HardhatRuntimeEnvironment) {
   ) 
 
   await swapExactETHForTokens.wait();
-
-
 
 }
 
