@@ -62,6 +62,7 @@ async function main(hre: HardhatRuntimeEnvironment) {
   const routerAddress = "0x980aCF80570e0895A3e03D8786A4cCB7C94408b2";
   const factoryAddress = "0xE5D0eB12257DFE3b17b34f758efD7c6631f97017";
   const wethAddress = "0x1dDaBBFF083301E937b24fA4C31ebCb9c695F39c";
+  const tokenAddress = tokenInstance.address;//"0x2529c9De9d39B4fd354B90927c83A82d5Bd6a552";
 
   ////////////// load contracts ///////////
 
@@ -74,6 +75,14 @@ async function main(hre: HardhatRuntimeEnvironment) {
     routerArtifact2["abi"],
     deployer
   );
+
+  // const tokenArtifact2 = await hardhat.artifacts.readArtifact("TestToken");
+
+  // const tokenInstance = new ethers.Contract(
+  //   tokenAddress,
+  //   tokenArtifact2["abi"],
+  //   deployer
+  // );
 
 
   ///////////// add liquidity //////////////////
@@ -93,10 +102,17 @@ async function main(hre: HardhatRuntimeEnvironment) {
 
   await tokenApprove.wait();
 
-  console.log("tokenApprove: ", tokenApprove);
+  // console.log("tokenApprove: ", tokenApprove);
+
+  console.log("tokenAddress: ", tokenAddress);
+  console.log("tokenLiquidity: ", tokenLiquidity);
+  console.log("tokenMinLiquidity: ", tokenMinLiquidity);
+  console.log("ethMinLiquidity: ", ethMinLiquidity);
+  console.log("deployer.address: ", deployer.address);
+  console.log("ethLiquidity: ", ethLiquidity);
 
   const addLiquidityETH = await routerInstance.addLiquidityETH(
-    tokenInstance.address,
+    tokenAddress,
     tokenLiquidity,
     tokenMinLiquidity,
     ethMinLiquidity,
@@ -104,7 +120,7 @@ async function main(hre: HardhatRuntimeEnvironment) {
     "6000000000000000",
     {
       value: ethLiquidity,
-      gasLimit: 5000000,
+      gasLimit: 4000000,
     } 
   );
   
