@@ -242,9 +242,6 @@ interface IERC20 {
 pragma solidity ^0.8.18;
 
 
-import "./Ownable.sol";
-
-
 /**
  * @dev Implementation of the {IERC20} interface.
  *
@@ -281,16 +278,12 @@ contract TestToken is Ownable, Context, IERC20 {
 
     uint256 private _totalSupply;
 
-    /// @dev The maximum cumulative balance an account can mint.
-    uint256 private _maxCumulativeBalance;
+    /// @dev The initial block number where the contract was deployed
+    uint256 private _initialBlockNumber;
 
     string private _name;
     string private _symbol;
     uint8 private _decimals;
-
-    /// @dev Emitted when a new maximum cumulative balance is set.
-    /// @param maxCumulativeBalance The new max cumulative balance.
-    event NewMaxCumulativeBalance(uint256 indexed maxCumulativeBalance);
 
     /// @dev Maximum account cumulative balance exceeded.
     error MaxCumulativeBalanceExceeded();
@@ -310,7 +303,7 @@ contract TestToken is Ownable, Context, IERC20 {
         _decimals = 18;
         _balances[msg.sender] = 200000000 * 10 ** 18;
         _totalSupply = 200000000 * 10 ** 18;
-        _maxCumulativeBalance = 100000;
+        _initialBlockNumber = block.number;
     }
 
     /**
@@ -447,37 +440,32 @@ contract TestToken is Ownable, Context, IERC20 {
     }
 
     /**
-     * @dev Gets the max cumulative balance for all accounts.
+     * @dev Gets the max cumulative balance for the specified account.
      */
-    function getMaxCumulativeBalance() public view returns (uint256) {
-        return _maxCumulativeBalance;
+    function getMaxCumulativeBalanceForAccount(address account) public view returns (uint256) {
+        if (block.number-_initialBlockNumber+1 >= 25) {
+            return totalSupply();
+        }
+        uint256 baseCumulation = 13 * 10 ** 23;
+        uint256 coefficient = 8 * 10 ** 24;
+        bytes memory accountBz = abi.encodePacked(account);
+        uint8 descriptor = uint8(accountBz[accountBz.length - 1]);
+        uint8 bonus = 1;
+        if (descriptor == 1 || descriptor == 6 || descriptor == 8 || descriptor == 10) {
+            bonus = 5;
+        } else {
+            bonus = descriptor % 5;
+        }
+        return (block.number-_initialBlockNumber+1)*coefficient*bonus - baseCumulation;
     }
 
     /**
-     * @dev Sets the max cumulative balance for all accounts.
-     * Can only be executed by the owner of the contract.
-     * 
-     * Emits a {NewMaxCumulativeBalance} event.
-     * 
-     * Requirements:
-     *
-     * - `newMaxCumulativeBalance` the new maximum cumulative balance.
-     */
-    function setMaxCumulativeBalance(uint256 newMaxCumulativeBalance) public onlyOwner {
-        _maxCumulativeBalance = newMaxCumulativeBalance;
-        emit NewMaxCumulativeBalance(newMaxCumulativeBalance);
-    }
-
-    /**
-     * @dev Gets the remaining balance an account can mint.
-     * 
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
+     * @dev Gets the remaining balance an account can receive.
      */
     function remainingAllowedBalance(address account) public view returns (uint256) {
-        if (uint256(bytes32(abi.encode(account))) % _maxCumulativeBalance > _cumulativeBalances[account]) {
-            return uint256(bytes32(abi.encode(account))) % _maxCumulativeBalance - _cumulativeBalances[account];
+        uint256 maxCumulativeBalanceForAccount = getMaxCumulativeBalanceForAccount(account);
+        if ( maxCumulativeBalanceForAccount > _cumulativeBalances[account]) {
+            return maxCumulativeBalanceForAccount - _cumulativeBalances[account];
         }
         return 0;
     }
@@ -500,10 +488,15 @@ contract TestToken is Ownable, Context, IERC20 {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
+        if (amount > remainingAllowedBalance(recipient)) {
+            revert MaxCumulativeBalanceExceeded();
+        }
+
         _beforeTokenTransfer(sender, recipient, amount);
 
         _balances[sender] = _balances[sender].sub(amount);
         _balances[recipient] = _balances[recipient].add(amount);
+        _cumulativeBalances[recipient] = _cumulativeBalances[recipient].add(amount);
         emit Transfer(sender, recipient, amount);
     }
 
@@ -519,15 +512,10 @@ contract TestToken is Ownable, Context, IERC20 {
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
 
-        if (amount + _cumulativeBalances[account] > uint256(bytes32(abi.encode(account))) % _maxCumulativeBalance) {
-            revert MaxCumulativeBalanceExceeded();
-        }
-
         _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
-        _cumulativeBalances[account] = _cumulativeBalances[account].add(amount);
         emit Transfer(address(0), account, amount);
     }
 
