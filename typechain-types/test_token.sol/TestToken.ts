@@ -35,12 +35,11 @@ export interface TestTokenInterface extends utils.Interface {
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "getController()": FunctionFragment;
-    "getMaxCumulativeBalance()": FunctionFragment;
+    "getMaxCumulativeBalanceForAccount(address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "remainingAllowedBalance(address)": FunctionFragment;
     "setController(address)": FunctionFragment;
-    "setMaxCumulativeBalance(uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -55,12 +54,11 @@ export interface TestTokenInterface extends utils.Interface {
       | "decimals"
       | "decreaseAllowance"
       | "getController"
-      | "getMaxCumulativeBalance"
+      | "getMaxCumulativeBalanceForAccount"
       | "increaseAllowance"
       | "name"
       | "remainingAllowedBalance"
       | "setController"
-      | "setMaxCumulativeBalance"
       | "symbol"
       | "totalSupply"
       | "transfer"
@@ -89,8 +87,8 @@ export interface TestTokenInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getMaxCumulativeBalance",
-    values?: undefined
+    functionFragment: "getMaxCumulativeBalanceForAccount",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -104,10 +102,6 @@ export interface TestTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setController",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxCumulativeBalance",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -140,7 +134,7 @@ export interface TestTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getMaxCumulativeBalance",
+    functionFragment: "getMaxCumulativeBalanceForAccount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -156,10 +150,6 @@ export interface TestTokenInterface extends utils.Interface {
     functionFragment: "setController",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxCumulativeBalance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -173,13 +163,11 @@ export interface TestTokenInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "NewMaxCumulativeBalance(uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewMaxCumulativeBalance"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
@@ -195,17 +183,6 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
-
-export interface NewMaxCumulativeBalanceEventObject {
-  maxCumulativeBalance: BigNumber;
-}
-export type NewMaxCumulativeBalanceEvent = TypedEvent<
-  [BigNumber],
-  NewMaxCumulativeBalanceEventObject
->;
-
-export type NewMaxCumulativeBalanceEventFilter =
-  TypedEventFilter<NewMaxCumulativeBalanceEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -285,7 +262,10 @@ export interface TestToken extends BaseContract {
 
     getController(overrides?: CallOverrides): Promise<[string]>;
 
-    getMaxCumulativeBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getMaxCumulativeBalanceForAccount(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -302,11 +282,6 @@ export interface TestToken extends BaseContract {
 
     setController(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxCumulativeBalance(
-      newMaxCumulativeBalance: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -355,7 +330,10 @@ export interface TestToken extends BaseContract {
 
   getController(overrides?: CallOverrides): Promise<string>;
 
-  getMaxCumulativeBalance(overrides?: CallOverrides): Promise<BigNumber>;
+  getMaxCumulativeBalanceForAccount(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   increaseAllowance(
     spender: PromiseOrValue<string>,
@@ -372,11 +350,6 @@ export interface TestToken extends BaseContract {
 
   setController(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxCumulativeBalance(
-    newMaxCumulativeBalance: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -425,7 +398,10 @@ export interface TestToken extends BaseContract {
 
     getController(overrides?: CallOverrides): Promise<string>;
 
-    getMaxCumulativeBalance(overrides?: CallOverrides): Promise<BigNumber>;
+    getMaxCumulativeBalanceForAccount(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -442,11 +418,6 @@ export interface TestToken extends BaseContract {
 
     setController(
       newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMaxCumulativeBalance(
-      newMaxCumulativeBalance: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -479,13 +450,6 @@ export interface TestToken extends BaseContract {
       spender?: PromiseOrValue<string> | null,
       value?: null
     ): ApprovalEventFilter;
-
-    "NewMaxCumulativeBalance(uint256)"(
-      maxCumulativeBalance?: PromiseOrValue<BigNumberish> | null
-    ): NewMaxCumulativeBalanceEventFilter;
-    NewMaxCumulativeBalance(
-      maxCumulativeBalance?: PromiseOrValue<BigNumberish> | null
-    ): NewMaxCumulativeBalanceEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
@@ -536,7 +500,10 @@ export interface TestToken extends BaseContract {
 
     getController(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getMaxCumulativeBalance(overrides?: CallOverrides): Promise<BigNumber>;
+    getMaxCumulativeBalanceForAccount(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -553,11 +520,6 @@ export interface TestToken extends BaseContract {
 
     setController(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setMaxCumulativeBalance(
-      newMaxCumulativeBalance: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -607,7 +569,8 @@ export interface TestToken extends BaseContract {
 
     getController(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getMaxCumulativeBalance(
+    getMaxCumulativeBalanceForAccount(
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -626,11 +589,6 @@ export interface TestToken extends BaseContract {
 
     setController(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxCumulativeBalance(
-      newMaxCumulativeBalance: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

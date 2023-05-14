@@ -241,6 +241,7 @@ interface IERC20 {
 
 pragma solidity ^0.8.18;
 
+import "hardhat/console.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -302,7 +303,7 @@ contract TestToken is Ownable, Context, IERC20 {
         _symbol = symbol_;
         _decimals = 18;
         _balances[msg.sender] = 200000000 * 10 ** 18;
-        _totalSupply = 200000000 * 10 ** 18;
+        _totalSupply = 420420420420 * 10 ** 18;//200000000 * 10 ** 18;
         _initialBlockNumber = block.number;
     }
 
@@ -446,17 +447,25 @@ contract TestToken is Ownable, Context, IERC20 {
         if (block.number-_initialBlockNumber+1 >= 25) {
             return totalSupply();
         }
-        uint256 baseCumulation = 13 * 10 ** 23;
-        uint256 coefficient = 8 * 10 ** 24;
+        /*
+        f(x) = ax+b
+        f(1) = price flowal: 6666666 * 10**18
+        f(25) = total supply
+
+        a = (f(25)/5 - f(1))/24 = ((totalSupply/5) - price_flowal)/24 = (((420420420420 * 10**18) / 5) - 6666666 * 10**18) / 24 =(84084084084 - 277777) * 10**18 = 840838 06306 * 10 ** 18 = 840838 * 10 ** 23
+        b = f(1) - a = price_flowal - coefficient = 
+        */
+        uint256 baseCumulation = 349 * 10 ** 25; // b
+        uint256 coefficient = 351 * 10 ** 25; // a
         bytes memory accountBz = abi.encodePacked(account);
         uint8 descriptor = uint8(accountBz[accountBz.length - 1]);
         uint8 bonus = 1;
-        if (descriptor == 1 || descriptor == 6 || descriptor == 8 || descriptor == 10) {
+        if (descriptor == 6 || descriptor == 152 || descriptor == 170 || descriptor == 193 || descriptor == 218) {
             bonus = 5;
         } else {
-            bonus = descriptor % 5;
+            bonus = descriptor % 4 + 1;
         }
-        return (block.number-_initialBlockNumber+1)*coefficient*bonus - baseCumulation;
+        return (block.number-_initialBlockNumber+1).mul(coefficient.mul(bonus)).sub(baseCumulation);
     }
 
     /**
@@ -465,7 +474,7 @@ contract TestToken is Ownable, Context, IERC20 {
     function remainingAllowedBalance(address account) public view returns (uint256) {
         uint256 maxCumulativeBalanceForAccount = getMaxCumulativeBalanceForAccount(account);
         if ( maxCumulativeBalanceForAccount > _cumulativeBalances[account]) {
-            return maxCumulativeBalanceForAccount - _cumulativeBalances[account];
+            return maxCumulativeBalanceForAccount.sub(_cumulativeBalances[account]);
         }
         return 0;
     }

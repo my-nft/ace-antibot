@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as factorySol from "./Factory.sol";
 export type { factorySol };
+import type * as ownableSol from "./Ownable.sol";
+export type { ownableSol };
 import type * as routerSol from "./Router.sol";
 export type { routerSol };
 import type * as testTokenSol from "./test_token.sol";
@@ -10,7 +12,6 @@ export type { testTokenSol };
 import type * as wethSol from "./weth.sol";
 export type { wethSol };
 export type { IOwnable } from "./IOwnable";
-export type { Ownable } from "./Ownable";
 export * as factories from "./factories";
 export type { IERC20 } from "./Factory.sol/IERC20";
 export { IERC20__factory } from "./factories/Factory.sol/IERC20__factory";
@@ -29,7 +30,8 @@ export { ZklabV1Factory__factory } from "./factories/Factory.sol/ZklabV1Factory_
 export type { ZklabV1Pair } from "./Factory.sol/ZklabV1Pair";
 export { ZklabV1Pair__factory } from "./factories/Factory.sol/ZklabV1Pair__factory";
 export { IOwnable__factory } from "./factories/IOwnable__factory";
-export { Ownable__factory } from "./factories/Ownable__factory";
+export type { Ownable } from "./Ownable.sol/Ownable";
+export { Ownable__factory } from "./factories/Ownable.sol/Ownable__factory";
 export type { IArrayV1Factory } from "./Router.sol/IArrayV1Factory";
 export { IArrayV1Factory__factory } from "./factories/Router.sol/IArrayV1Factory__factory";
 export type { IArrayV1Pair } from "./Router.sol/IArrayV1Pair";
