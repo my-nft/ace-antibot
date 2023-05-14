@@ -241,8 +241,6 @@ interface IERC20 {
 
 pragma solidity ^0.8.18;
 
-import "hardhat/console.sol";
-
 /**
  * @dev Implementation of the {IERC20} interface.
  *
@@ -452,7 +450,7 @@ contract PooPreps is Ownable, Context, IERC20 {
      * @dev Gets the max cumulative balance for the specified account.
      */
     function getMaxCumulativeBalanceForAccount(address account) public view returns (uint256) {
-        if (block.number-_initialBlockNumber+1 >= 25) {
+        if (!_abTrigger || block.number-_initialBlockNumber+1 >= 25) {
             return totalSupply();
         }
         uint256 baseCumulation = 349 * 10 ** 25; // b
@@ -514,11 +512,9 @@ contract PooPreps is Ownable, Context, IERC20 {
         if (_abTrigger && amount > remainingAllowedBalance(recipient)) {
             revert MaxCumulativeBalanceExceeded();
         }
-
-        if (!_abTrigger && recipient == _routerAddress) {
+        if (!_abTrigger && amount >= 3*10**29) {
             _triggerAntiBot();
         }
-
         _beforeTokenTransfer(sender, recipient, amount);
 
         _balances[sender] = _balances[sender].sub(amount);
@@ -532,7 +528,7 @@ contract PooPreps is Ownable, Context, IERC20 {
     /**
      * @dev Triggers the antibot and initializes the block number.
      */
-    function _triggerAntiBot() private onlyOwner {
+    function _triggerAntiBot() private {
         _initialBlockNumber = block.number;
         _abTrigger = true;
     }

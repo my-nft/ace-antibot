@@ -72,86 +72,50 @@ async function main(hre: HardhatRuntimeEnvironment) {
 
   // const addLiquidityV3 = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
   const addLiquidityV3 = routerInstance.address;
+
   // we need method:trigger anti bot, can be called on transfer to addLiquidityV3 address
   // method will reset the bot block counter
   // method can be called by owner only once  
-
-  const max1 = await tokenInstance.getMaxCumulativeBalanceForAccount(address1);
-  console.log("max1: ", max1);
-  const max2 = await tokenInstance.getMaxCumulativeBalanceForAccount(address2);
-  console.log("max2: ", max2);
-  const max3 = await tokenInstance.getMaxCumulativeBalanceForAccount(address3);
-  console.log("max3: ", max3);
-  const max4 = await tokenInstance.getMaxCumulativeBalanceForAccount(address4);
-  console.log("max4: ", max4);
-  const max5 = await tokenInstance.getMaxCumulativeBalanceForAccount(address5);
-  console.log("max5: ", max5);
-  const maxRandomAddress = await tokenInstance.getMaxCumulativeBalanceForAccount(randomAddress);
-  console.log("rand: ", maxRandomAddress);
+    
+  console.log("approve: ",(await (await tokenInstance.approve(routerInstance.address, "336336336336000000000000000000")).wait()).status)
   
-  await mine(1);
-
   for (let i = 0; i < 30; i++) {
-    await mine(1);
-    console.log("for next block: ", i+1)
-
     console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
     console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
     console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
     console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
     console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
     console.log("rand: ", await tokenInstance.getMaxCumulativeBalanceForAccount(randomAddress));
+    await mine(1);
+    console.log("for next block: ", i+1)
+  }
+
+  const addLiq = (await routerInstance.addLiquidityETH(
+    tokenInstance.address,
+    "336336336336000000000000000000",
+    0,
+    0,
+    deployer.address,
+    "10000000000000000",
+    {
+      value: "26700000000000000000",
+    },
+  )).wait();
+
+  console.log("add liquidity status:", (await addLiq).status)
+
+  for (let i = 0; i < 30; i++) {
+    console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
+    console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
+    console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
+    console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
+    console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
+    console.log("rand: ", await tokenInstance.getMaxCumulativeBalanceForAccount(randomAddress));
+    await mine(1);
+    console.log("for next block: ", i+1)
   }
 
 
-
-  // console.log("for next 21 block:")
-
-  // console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
-  // console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
-  // console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
-  // console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
-  // console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
-
-
-  // console.log("for next block:")
-  // await mine(1);
-
-  // console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
-  // console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
-  // console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
-  // console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
-  // console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
-
-  // await mine(1);
-
-  // console.log("for next block:")
-
-  // console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
-  // console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
-  // console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
-  // console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
-  // console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
-
-  // await mine(1);
-
-  // console.log("for next block:")
-
-  // console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
-  // console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
-  // console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
-  // console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
-  // console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
-
-  // await mine(1);
-
-  // console.log("for next block:")
-
-  // console.log("max1: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address1));
-  // console.log("max2: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address2));
-  // console.log("max3: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address3));
-  // console.log("max4: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address4));
-  // console.log("max5: ", await tokenInstance.getMaxCumulativeBalanceForAccount(address5));
 
   console.log("total supply: ", await tokenInstance.totalSupply());
   /////////////// addresses //////////
