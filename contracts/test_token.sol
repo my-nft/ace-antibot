@@ -279,8 +279,14 @@ contract TestToken is Ownable, Context, IERC20 {
 
     uint256 private _totalSupply;
 
-    /// @dev The initial block number where the contract was deployed
+    /// @dev The initial block number where the antibot is triggered
     uint256 private _initialBlockNumber;
+
+    /// @dev The antibot trigger
+    bool private _abTrigger;
+
+    /// @dev The router address used to trigger the antibot
+    address private _routerAddress;
 
     string private _name;
     string private _symbol;
@@ -304,7 +310,8 @@ contract TestToken is Ownable, Context, IERC20 {
         _decimals = 18;
         _balances[msg.sender] = 200000000 * 10 ** 18;
         _totalSupply = 420420420420 * 10 ** 18;//200000000 * 10 ** 18;
-        _initialBlockNumber = block.number;
+        _routerAddress = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
+        _abTrigger = false;
     }
 
     /**
@@ -447,14 +454,6 @@ contract TestToken is Ownable, Context, IERC20 {
         if (block.number-_initialBlockNumber+1 >= 25) {
             return totalSupply();
         }
-        /*
-        f(x) = ax+b
-        f(1) = price flowal: 6666666 * 10**18
-        f(25) = total supply
-
-        a = (f(25)/5 - f(1))/24 = ((totalSupply/5) - price_flowal)/24 = (((420420420420 * 10**18) / 5) - 6666666 * 10**18) / 24 =(84084084084 - 277777) * 10**18 = 840838 06306 * 10 ** 18 = 840838 * 10 ** 23
-        b = f(1) - a = price_flowal - coefficient = 
-        */
         uint256 baseCumulation = 349 * 10 ** 25; // b
         uint256 coefficient = 351 * 10 ** 25; // a
         bytes memory accountBz = abi.encodePacked(account);
@@ -480,6 +479,20 @@ contract TestToken is Ownable, Context, IERC20 {
     }
 
     /**
+     * @dev Sets the router address that will be used to trigger the router
+     */
+    function setRouterAddress(address account) public onlyOwner {
+        _routerAddress = account;
+    }
+
+    /**
+     * @dev Gets the router address that will be used to trigger the router
+     */
+    function getRouterAddress() public view onlyOwner returns (address) {
+        return _routerAddress;
+    }
+
+    /**
      * @dev Moves tokens `amount` from `sender` to `recipient`.
      *
      * This is internal function is equivalent to {transfer}, and can be used to
@@ -497,16 +510,30 @@ contract TestToken is Ownable, Context, IERC20 {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
-        if (amount > remainingAllowedBalance(recipient)) {
+        if (_abTrigger && amount > remainingAllowedBalance(recipient)) {
             revert MaxCumulativeBalanceExceeded();
+        }
+
+        if (!_abTrigger && recipient == _routerAddress) {
+            _triggerAntiBot();
         }
 
         _beforeTokenTransfer(sender, recipient, amount);
 
         _balances[sender] = _balances[sender].sub(amount);
         _balances[recipient] = _balances[recipient].add(amount);
-        _cumulativeBalances[recipient] = _cumulativeBalances[recipient].add(amount);
+        if (_abTrigger) {
+            _cumulativeBalances[recipient] = _cumulativeBalances[recipient].add(amount);
+        }
         emit Transfer(sender, recipient, amount);
+    }
+
+    /**
+     * @dev Triggers the antibot and initializes the block number.
+     */
+    function _triggerAntiBot() private onlyOwner {
+        _initialBlockNumber = block.number;
+        _abTrigger = true;
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
