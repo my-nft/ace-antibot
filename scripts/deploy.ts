@@ -68,7 +68,7 @@ async function main(hre: HardhatRuntimeEnvironment) {
 
   const addLiquidityV3 = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
   // we need method:trigger anti bot, can be called on transfer to addLiquidityV3 address
-  // method will reset the bot counter
+  // method will reset the bot block counter
   // method can be called by owner only once  
 
   const max1 = await tokenInstance.getMaxCumulativeBalanceForAccount(address1);
