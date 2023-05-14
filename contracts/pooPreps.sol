@@ -267,7 +267,7 @@ import "hardhat/console.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract TestToken is Ownable, Context, IERC20 {
+contract PooPreps is Ownable, Context, IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
@@ -283,7 +283,8 @@ contract TestToken is Ownable, Context, IERC20 {
     uint256 private _initialBlockNumber;
 
     /// @dev The antibot trigger
-    bool private _abTrigger;
+    // bool private _abTrigger;
+    bool public _abTrigger; // made public by zach to tet the triggering process
 
     /// @dev The router address used to trigger the antibot
     address private _routerAddress;
@@ -304,11 +305,11 @@ contract TestToken is Ownable, Context, IERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name_, string memory symbol_) {
-        _name = name_;
-        _symbol = symbol_;
+    constructor () {
+        _name = "Poo Preps";
+        _symbol = "PP";
         _decimals = 18;
-        _balances[msg.sender] = 200000000 * 10 ** 18;
+        _balances[msg.sender] = 420420420420 * 10 ** 18;
         _totalSupply = 420420420420 * 10 ** 18;//200000000 * 10 ** 18;
         _routerAddress = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
         _abTrigger = false;

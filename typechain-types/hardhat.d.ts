@@ -57,6 +57,22 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
+      name: "IERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20__factory>;
+    getContractFactory(
+      name: "IOwnable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOwnable__factory>;
+    getContractFactory(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "PooPreps",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.PooPreps__factory>;
+    getContractFactory(
       name: "IArrayV1Factory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IArrayV1Factory__factory>;
@@ -84,22 +100,6 @@ declare module "hardhat/types/runtime" {
       name: "Router02",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Router02__factory>;
-    getContractFactory(
-      name: "IERC20",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC20__factory>;
-    getContractFactory(
-      name: "IOwnable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IOwnable__factory>;
-    getContractFactory(
-      name: "Ownable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Ownable__factory>;
-    getContractFactory(
-      name: "TestToken",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.TestToken__factory>;
     getContractFactory(
       name: "WETH9",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -161,6 +161,26 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
     getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
+    getContractAt(
+      name: "IOwnable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOwnable>;
+    getContractAt(
+      name: "Ownable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "PooPreps",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PooPreps>;
+    getContractAt(
       name: "IArrayV1Factory",
       address: string,
       signer?: ethers.Signer
@@ -195,26 +215,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Router02>;
-    getContractAt(
-      name: "IERC20",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC20>;
-    getContractAt(
-      name: "IOwnable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IOwnable>;
-    getContractAt(
-      name: "Ownable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Ownable>;
-    getContractAt(
-      name: "TestToken",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.TestToken>;
     getContractAt(
       name: "WETH9",
       address: string,

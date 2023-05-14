@@ -20,43 +20,47 @@ async function main(hre: HardhatRuntimeEnvironment) {
 
   const routerArtifact = await ethers.getContractFactory("Router02");
 
-  const tokenArtifact = await ethers.getContractFactory("TestToken");
+  const tokenArtifact = await ethers.getContractFactory("PooPreps");
 
 
   ////////////// deploy weth /////////////////
-  // const wethArtifact = await ethers.getContractFactory("WETH9");
+  const wethArtifact = await ethers.getContractFactory("WETH9");
 
-  // const wethInstance = await wethArtifact.deploy();
+  const wethInstance = await wethArtifact.deploy();
 
-  // await wethInstance.deployed();
+  await wethInstance.deployed();
 
-  // console.log("deployer address: ", deployer.address);
+  console.log("deployer address: ", deployer.address);
 
-  // console.log("wethInstance: ", wethInstance.address);
-
-  ////////////// deploy factory /////////////////
-
-  // const factoryInstance = await factoryArtifact.deploy(deployer.address);
-
-  // await factoryInstance.deployed();
-
-  // console.log("factoryInstance: ", factoryInstance.address);
+  console.log("wethInstance: ", wethInstance.address);
 
   ////////////// deploy factory /////////////////
 
-  // const routerInstance = await routerArtifact.deploy(factoryInstance.address, wethInstance.address);
+  const factoryInstance = await factoryArtifact.deploy(deployer.address);
 
-  // await routerInstance.deployed();
+  await factoryInstance.deployed();
+
+  console.log("factoryInstance: ", factoryInstance.address);
+
+  ////////////// deploy router /////////////////
+
+  const routerInstance = await routerArtifact.deploy(factoryInstance.address, wethInstance.address);
+
+  await routerInstance.deployed();
   
-  // console.log("routerInstance: ", routerInstance.address);
+  console.log("routerInstance: ", routerInstance.address);
 
   ////////////// deploy token /////////////////
 
-  const tokenInstance = await tokenArtifact.deploy("test token", "tt");
+  const tokenInstance = await tokenArtifact.deploy();
 
   await tokenInstance.deployed();
+
+  await tokenInstance.setRouterAddress(routerInstance.address);
   
   console.log("tokenInstance address: ", tokenInstance.address);
+
+  console.log("abTribber: ", await tokenInstance._abTrigger());
   // console.log("tokenInstance: ", tokenInstance);
 
   const address1 = "0xB2f265b94443B913eFAD3805A75C4B1b9493adAa";
@@ -66,7 +70,8 @@ async function main(hre: HardhatRuntimeEnvironment) {
   const address5 = "0x44BA620bd600E57884667B07E613711eDc44c098";
   const randomAddress = "0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5";
 
-  const addLiquidityV3 = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+  // const addLiquidityV3 = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+  const addLiquidityV3 = routerInstance.address;
   // we need method:trigger anti bot, can be called on transfer to addLiquidityV3 address
   // method will reset the bot block counter
   // method can be called by owner only once  
