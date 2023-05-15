@@ -280,6 +280,8 @@ contract PooPreps is Ownable, Context, IERC20 {
     /// @dev The initial block number where the antibot is triggered
     uint256 private _initialBlockNumber;
 
+    uint24[] public _exponentialInc;
+
     /// @dev The antibot trigger
     // bool private _abTrigger;
     bool public _abTrigger; // made public by zach to tet the triggering process
@@ -311,6 +313,8 @@ contract PooPreps is Ownable, Context, IERC20 {
         _totalSupply = 420420420420 * 10 ** 18;//200000000 * 10 ** 18;
         _routerAddress = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
         _abTrigger = false;
+        _exponentialInc = [10,15,20,30,50,75,100,300,500,600,700,800,1000,2000,4000,6000,8000,
+            10000,15000,20000,50000,80000,100000,200000,300000,400000,500000];
     }
 
     /**
@@ -453,17 +457,24 @@ contract PooPreps is Ownable, Context, IERC20 {
         if (!_abTrigger || block.number-_initialBlockNumber+1 >= 25) {
             return totalSupply();
         }
-        uint256 baseCumulation = 349 * 10 ** 25; // b
-        uint256 coefficient = 351 * 10 ** 25; // a
+        uint256 base = 16816*10**18;
         bytes memory accountBz = abi.encodePacked(account);
         uint8 descriptor = uint8(accountBz[accountBz.length - 1]);
         uint8 bonus = 1;
-        if (descriptor == 6 || descriptor == 152 || descriptor == 170 || descriptor == 193 || descriptor == 218) {
-            bonus = 5;
+        if (descriptor == 6 ) {
+            bonus = 50;
+        } else if (descriptor == 152){
+            bonus = 45;
+        } else if (descriptor == 170){
+            bonus = 48;
+        } else if (descriptor == 193){
+            bonus = 42;
+        } else if (descriptor == 218){
+            bonus = 44;
         } else {
-            bonus = descriptor % 4 + 1;
+            bonus = descriptor % 49 + 1;
         }
-        return (block.number-_initialBlockNumber+1).mul(coefficient.mul(bonus)).sub(baseCumulation);
+        return base.mul(_exponentialInc[block.number-_initialBlockNumber+1]).mul(bonus);
     }
 
     /**

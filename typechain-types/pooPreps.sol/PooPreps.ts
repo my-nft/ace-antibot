@@ -30,6 +30,7 @@ import type {
 export interface PooPrepsInterface extends utils.Interface {
   functions: {
     "_abTrigger()": FunctionFragment;
+    "_exponentialInc(uint256)": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
@@ -52,6 +53,7 @@ export interface PooPrepsInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "_abTrigger"
+      | "_exponentialInc"
       | "allowance"
       | "approve"
       | "balanceOf"
@@ -74,6 +76,10 @@ export interface PooPrepsInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "_abTrigger",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "_exponentialInc",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "allowance",
@@ -140,6 +146,10 @@ export interface PooPrepsInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "_abTrigger", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "_exponentialInc",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -264,6 +274,11 @@ export interface PooPreps extends BaseContract {
   functions: {
     _abTrigger(overrides?: CallOverrides): Promise<[boolean]>;
 
+    _exponentialInc(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
+
     allowance(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -341,6 +356,11 @@ export interface PooPreps extends BaseContract {
 
   _abTrigger(overrides?: CallOverrides): Promise<boolean>;
 
+  _exponentialInc(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<number>;
+
   allowance(
     owner: PromiseOrValue<string>,
     spender: PromiseOrValue<string>,
@@ -417,6 +437,11 @@ export interface PooPreps extends BaseContract {
 
   callStatic: {
     _abTrigger(overrides?: CallOverrides): Promise<boolean>;
+
+    _exponentialInc(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<number>;
 
     allowance(
       owner: PromiseOrValue<string>,
@@ -529,6 +554,11 @@ export interface PooPreps extends BaseContract {
   estimateGas: {
     _abTrigger(overrides?: CallOverrides): Promise<BigNumber>;
 
+    _exponentialInc(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     allowance(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -606,6 +636,11 @@ export interface PooPreps extends BaseContract {
 
   populateTransaction: {
     _abTrigger(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    _exponentialInc(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     allowance(
       owner: PromiseOrValue<string>,
